@@ -1,0 +1,75 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.13, pytest-9.1.1, pluggy-1.5.0 -- /opt/conda/bin/python3.11
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /tests
+plugins: hypothesis-6.135.0
+collecting ... collected 1 item
+
+../tests/test_behavior.py::test_distributed_training_no_deadlock FAILED  [100%]
+
+=================================== FAILURES ===================================
+____________________ test_distributed_training_no_deadlock _____________________
+
+    def test_distributed_training_no_deadlock():
+        # 设置超时时间（例如 5 秒）。如果有死锁，进程会挂起直到超时失败。
+        start_time = time.time()
+        try:
+>           result = subprocess.run(
+                ["python3", "/workspace/train_job.py"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+
+/tests/test_behavior.py:9: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/conda/lib/python3.11/subprocess.py:550: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.11/subprocess.py:1209: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.11/subprocess.py:2116: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Popen: returncode: -9 args: ['python3', '/workspace/train_job.py']>
+endtime = 2361.808170727, orig_timeout = 5, stdout_seq = [], stderr_seq = []
+skip_check_and_raise = False
+
+    def _check_timeout(self, endtime, orig_timeout, stdout_seq, stderr_seq,
+                       skip_check_and_raise=False):
+        """Convenience for checking if a timeout has expired."""
+        if endtime is None:
+            return
+        if skip_check_and_raise or _time() > endtime:
+>           raise TimeoutExpired(
+                    self.args, orig_timeout,
+                    output=b''.join(stdout_seq) if stdout_seq else None,
+                    stderr=b''.join(stderr_seq) if stderr_seq else None)
+E           subprocess.TimeoutExpired: Command '['python3', '/workspace/train_job.py']' timed out after 5 seconds
+
+/opt/conda/lib/python3.11/subprocess.py:1253: TimeoutExpired
+
+During handling of the above exception, another exception occurred:
+
+    def test_distributed_training_no_deadlock():
+        # 设置超时时间（例如 5 秒）。如果有死锁，进程会挂起直到超时失败。
+        start_time = time.time()
+        try:
+            result = subprocess.run(
+                ["python3", "/workspace/train_job.py"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            assert result.returncode == 0, f"Training failed with stderr: {result.stderr}"
+        except subprocess.TimeoutExpired:
+>           pytest.fail("Distributed training hung due to a deadlock (timeout after 5 seconds).")
+E           Failed: Distributed training hung due to a deadlock (timeout after 5 seconds).
+
+/tests/test_behavior.py:17: Failed
+=========================== short test summary info ============================
+FAILED ../tests/test_behavior.py::test_distributed_training_no_deadlock - Fai...
+============================== 1 failed in 8.88s ===============================

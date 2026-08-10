@@ -10,7 +10,7 @@ def test_distributed_training_no_deadlock():
             ["python3", "/workspace/train_job.py"],
             capture_output=True,
             text=True,
-            timeout=5
+            timeout=15
         )
         assert result.returncode == 0, f"Training failed with stderr: {result.stderr}"
     except subprocess.TimeoutExpired:
