@@ -1,0 +1,23 @@
+version = "1.0"
+
+[metadata]
+category = "Distributed Training Internals"
+secondary_categories = ["Coordination & Synchronization"]
+tags = ["pytorch", "distributed", "ddp", "deadlock", "multiprocessing"]
+difficulty = "hard"
+difficulty_explanation = "The task requires diagnosing a non-deterministic distributed deadlock caused by conditional or asymmetric communication operations across ranks in a resource-constrained multi-process environment. The agent must analyze execution interleavings, handle uneven workloads, and introduce proper global synchronization."
+solution_explanation = "Refactor the distributed worker logic to ensure all ranks unconditionally participate in synchronization barriers or collective communication primitives (such as all_reduce) regardless of local data condition branches."
+verification_explanation = "The test suite executes the multi-process training script under strict timeout constraints with 2 processes, validating that ranks do not fall out of sync and exit cleanly without deadlocking."
+expert_time_estimate_hours = 3.0
+
+[verifier]
+timeout_sec = 300
+
+[agent]
+timeout_sec = 600
+
+[environment]
+build_timeout_sec = 600
+cpus = 2
+memory_mb = 4096
+storage_mb = 10240
