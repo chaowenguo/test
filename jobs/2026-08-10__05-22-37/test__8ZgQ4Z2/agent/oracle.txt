@@ -1,1 +1,0 @@
-Distributed deadlock solution applied with file-based store initialization.

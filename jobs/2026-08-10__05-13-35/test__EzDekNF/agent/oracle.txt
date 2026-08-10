@@ -1,1 +1,0 @@
-Distributed deadlock solution applied with stable TCP config.
